@@ -1,0 +1,67 @@
+/* Estilos generales */
+body {
+  font-family: sans-serif;
+  transition: background-color 0.3s ease; /* Transición para el cambio de tema */
+}
+
+.container {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centrar horizontalmente */
+}
+
+h1 {
+  color: #343a40; /* Color de texto oscuro */
+  margin-bottom: 30px;
+}
+
+/* Estilos para los selectores */
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Estilos para los radio buttons */
+.form-check-input {
+  margin-right: 5px;
+}
+
+.form-check-label {
+  margin-right: 15px;
+}
+
+/* Estilos para el botón */
+button {
+  background-color: #007bff; /* Color de fondo azul */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0069d9; /* Color de fondo azul más oscuro al pasar el mouse */
+}
+
+/* Estilos para el tema claro */
+body.light-theme {
+  background-color: #f8f9fa; /* Color de fondo claro */
+  color: #343a40; /* Color de texto oscuro */
+}
+
+/* Estilos para el tema oscuro */
+body.dark-theme {
+  background-color: #343a40; /* Color de fondo oscuro */
+  color: #f8f9fa; /* Color de texto claro */
+}
