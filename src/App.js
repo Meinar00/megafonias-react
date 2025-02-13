@@ -103,6 +103,13 @@ function App() {
         }
     };
 
+    const reproducirColision = () => {
+        const audioColision = new Audio('/audio/colision.wav');
+        audioColision.play().catch(error => {
+            console.error("Error al reproducir audio:", error);
+        });
+    };
+
     useEffect(() => {
         const cargarAudios = () => {
             // Preload audio files (optional but recommended)
@@ -115,6 +122,7 @@ function App() {
             });
 
             const audioVallecas = new Audio(`/audio/vallecas.wav`); // Preload new audio file
+            const audioColision = new Audio(`/audio/colision.m4a`);
         };
 
         cargarAudios();
@@ -194,6 +202,10 @@ function App() {
             <button onClick={reproducirAudio} className="btn btn-primary">Reproducir</button>
             <button onClick={toggleTheme} className="btn btn-secondary mt-3">
                 Cambiar tema a {theme === 'light' ? 'oscuro' : 'claro'}
+            </button>
+
+            <button onClick={reproducirColision} className="btn btn-danger mt-3 fixed-bottom">
+                Colisión
             </button>
         </div>
     );
