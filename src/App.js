@@ -41,7 +41,8 @@ function App() {
             "Julio Caro Baroja (Aqualon)"
         ],
         "Línea 131": ["Puente de Vallecas"],
-        "Línea T32": ["Profesor Raúl Vázquez"]
+        "Línea T32": ["Profesor Raúl Vázquez"],
+        "xx": ["tristante"]
     };
     const handleLineaChange = (event) => {
         setLineaSeleccionada(event.target.value);
