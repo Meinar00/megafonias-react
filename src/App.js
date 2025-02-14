@@ -13,42 +13,33 @@ function App() {
 
     const datos = {
         "Línea 1": [
-            "Zafra",
-            "Julio Caro Baroja (Aqualon)",
-            "Avda. Alemania (Esquina Ruiz de Alda)",
-            "Avda. Alemania (Plaza de Toros)",
-            "Bda. Navidad",
-            "Don Bosco",
-            "Plaza de los Dolores",
-            "Barriada del Carmen",
-            "Humilladero",
-            "Cardeñas",
-            "Orden Baja",
-            "Gonzalo de Berceo",
-            "Plaza Niño Miguel",
-            "Magnolia",
-            "Hospital JRJ",
-            "Plaza las Amapolas",
-            "Av. Andalucia (Castaño Robledo)",
-            "Monumento al Fútbol",
-            "Relaciones Laborales (Universidad)",
-            "Vista Alegre-Universidad",
-            "Centro Comercial Holea",
-            "Cruce Romeralejo",
-            "Universidad. Avenida de las Artes",
-            "Palacio de Deportes",
-            "Higueral (Fuerzas Armadas)",
-            "Bda. José Antonio",
-            "Isla Chica",
-            "Las Delicias",
-            "El Árbol",
-            "Gasolinera",
-            "Estación de Ferrocarril",
-            "El punto",
-            "Estación de Sevilla",
-            "Nuevo Mercado"
+            "Zafra", "Julio Caro Baroja (Aqualon)", "Avda. Alemania (Esquina Ruiz de Alda)",
+            "Avda. Alemania (Plaza de Toros)", "Bda. Navidad", "Don Bosco",
+            "Plaza de los Dolores", "Barriada del Carmen", "Humilladero", "Cardeñas",
+            "Orden Baja", "Gonzalo de Berceo", "Plaza Niño Miguel", "Magnolia",
+            "Hospital JRJ", "Plaza las Amapolas", "Av. Andalucia (Castaño Robledo)",
+            "Monumento al Fútbol", "Relaciones Laborales (Universidad)",
+            "Vista Alegre-Universidad", "Centro Comercial Holea", "Cruce Romeralejo",
+            "Universidad. Avenida de las Artes", "Palacio de Deportes",
+            "Higueral (Fuerzas Armadas)", "Bda. José Antonio", "Isla Chica",
+            "Las Delicias", "El Árbol", "Gasolinera", "Estación de Ferrocarril",
+            "El punto", "Estación de Sevilla", "Nuevo Mercado"
         ],
-        "Línea 5000": ["Puente de Vallecas"]
+        "Línea 2": [
+            "Zafra", "Nuevo Mercado", "Villa de Madrid", "Avenida Italia",
+            "Estación de Sevilla", "El Punto", "Estación de Ferrocarril", "Juzgados",
+            "Barrio Obrero", "El Porvenir", "Las Delicias", "Isla Chica",
+            "Bda, José Antonio", "Fuerzas Armadas Los Rosales", "Palacio de Deporte",
+            "Ciencias de la Educación (Universidad)", "Biblioteca (Universidad)",
+            "Monumento al Fútbol", "Relaciones Laborales (Universidad)",
+            "Vista Alegre-Universidad", "Centro Comercial Holea", "Plaza las Amapolas",
+            "Hospital JRJ", "Magnolia", "Orden Alta", "Gonzalo de Berceo (Alto)",
+            "Gonzalo de Berceo (Bajo)", "Orden Baja", "Legión Española", "Cardeñas",
+            "Humilladero", "Bda. del Carmen", "Santa Lucía", "Santa Eulalia",
+            "Bda. Navidad", "Molino de la Vega", "Paseo de las Palmeras",
+            "Julio Caro Baroja (Aqualon)"
+        ],
+        "Línea 131": ["Puente de Vallecas"]
     };
 
     const handleLineaChange = (event) => {
@@ -76,30 +67,38 @@ function App() {
             audio.pause();
         }
 
-        const playAudio = (audioFile) => {
-            const nuevoAudio = new Audio(audioFile);
-            nuevoAudio.play().catch(error => {
-                console.error("Error al reproducir audio:", error);
-            });
-            return nuevoAudio;
-        };
-
-        // Play "parada_actual" or "parada_siguiente" FIRST
-        const paradaTipoAudio = playAudio(`/audio/parada_${tipoParada}.wav`);
-        setAudio(paradaTipoAudio); // Update state immediately
-        audioRef.current = paradaTipoAudio; // Set audio ref
-        paradaTipoAudio.volume = volume; // Set volume
-
-        // Then, if a specific stop is selected, play that audio AFTER
-        if (datos[lineaSeleccionada] && datos[lineaSeleccionada].includes(paradaSeleccionada)) {
-            paradaTipoAudio.onended = () => {  // Play stop audio after type audio
-                let paradaAudioFile = "";
-                paradaAudioFile = `/audio/${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`; // Dynamic file naming
-                const paradaAudio = playAudio(paradaAudioFile);
-                setAudio(paradaAudio); // Update state again
-                audioRef.current = paradaAudio; // Set audio ref
-                paradaAudio.volume = volume; // Set volume
+        if (lineaSeleccionada && paradaSeleccionada) {
+            const playAudio = (audioFile) => {
+                const nuevoAudio = new Audio(audioFile);
+                nuevoAudio.play().catch(error => {
+                    console.error("Error al reproducir audio:", error);
+                });
+                return nuevoAudio;
             };
+
+            if (tipoParada === "noUsar") {
+                let paradaAudioFile = `/audio/${lineaSeleccionada.split(" ")[1]}-${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`;
+                const paradaAudio = playAudio(paradaAudioFile);
+                setAudio(paradaAudio);
+                audioRef.current = paradaAudio;
+                paradaAudio.volume = volume;
+            } else {
+                const paradaTipoAudio = playAudio(`/audio/parada_${tipoParada}.wav`);
+                setAudio(paradaTipoAudio);
+                audioRef.current = paradaTipoAudio;
+                paradaTipoAudio.volume = volume;
+
+                paradaTipoAudio.onended = () => {
+                    let paradaAudioFile = `/audio/${lineaSeleccionada.split(" ")[1]}-${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`;
+                    const paradaAudio = playAudio(paradaAudioFile);
+                    setAudio(paradaAudio);
+                    audioRef.current = paradaAudio;
+                    paradaAudio.volume = volume;
+                };
+            }
+        } else {
+            console.log("Por favor, selecciona una línea y una parada.");
+            alert("Para reproducir el audio, selecciona una línea y una parada.");
         }
     };
 
@@ -112,16 +111,16 @@ function App() {
 
     useEffect(() => {
         const cargarAudios = () => {
-            // Preload audio files (optional but recommended)
             const audioActual = new Audio(`/audio/parada_actual.wav`);
             const audioSiguiente = new Audio(`/audio/parada_siguiente.wav`);
 
-            // Dynamically preload audio files for each stop
-            datos["Línea 1"].forEach(parada => {
-                const audio = new Audio(`/audio/${parada.toLowerCase().replace(/ /g, "_")}.wav`);
-            });
+            for (const linea in datos) {
+                datos[linea].forEach(parada => {
+                    const audio = new Audio(`/audio/${parada.toLowerCase().replace(/ /g, "_")}.wav`);
+                });
+            }
 
-            const audioVallecas = new Audio(`/audio/vallecas.wav`); // Preload new audio file
+            const audioVallecas = new Audio(`/audio/vallecas.wav`);
             const audioColision = new Audio(`/audio/colision.m4a`);
         };
 
@@ -183,6 +182,16 @@ function App() {
                     />
                     <span className="form-check-label">Parada siguiente</span>
                 </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="noUsar"
+                        checked={tipoParada === 'noUsar'}
+                        onChange={handleTipoParadaChange}
+                        className="form-check-input"
+                    />
+                    <span className="form-check-label">No usar</span>
+                </label>
             </div>
 
             <div>
@@ -205,7 +214,7 @@ function App() {
             </button>
 
             <button onClick={reproducirColision} className="btn btn-danger mt-3 fixed-bottom">
-                Colisión
+                Anti-Colisión
             </button>
         </div>
     );
