@@ -10,6 +10,7 @@ function App() {
     const [volume, setVolume] = useState(1);
     const audioRef = useRef(null);
     const [theme, setTheme] = useState('light');
+    const [playing, setPlaying] = useState(false);
 
     const datos = {
         "Línea 1": [
@@ -39,9 +40,9 @@ function App() {
             "Bda. Navidad", "Molino de la Vega", "Paseo de las Palmeras",
             "Julio Caro Baroja (Aqualon)"
         ],
-        "Línea 131": ["Puente de Vallecas"]
+        "Línea 131": ["Puente de Vallecas"],
+        "Línea T32": ["Profesor Raúl Vázquez"]
     };
-
     const handleLineaChange = (event) => {
         setLineaSeleccionada(event.target.value);
         setParadaSeleccionada('');
@@ -63,21 +64,27 @@ function App() {
     };
 
     const reproducirAudio = () => {
-        if (audio) {
+        if (audio && playing) {
             audio.pause();
-        }
-
-        if (lineaSeleccionada && paradaSeleccionada) {
+            setPlaying(false);
+        } else if (lineaSeleccionada && paradaSeleccionada) {
             const playAudio = (audioFile) => {
                 const nuevoAudio = new Audio(audioFile);
                 nuevoAudio.play().catch(error => {
                     console.error("Error al reproducir audio:", error);
                 });
+
+                nuevoAudio.onended = () => {
+                    setPlaying(false);
+                };
+
                 return nuevoAudio;
             };
 
+            const lineaSinEspacios = lineaSeleccionada.split(" ")[1] || lineaSeleccionada.split(" ")[0];
+
             if (tipoParada === "noUsar") {
-                let paradaAudioFile = `/audio/${lineaSeleccionada.split(" ")[1]}-${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`;
+                let paradaAudioFile = `/audio/${lineaSinEspacios}-${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`;
                 const paradaAudio = playAudio(paradaAudioFile);
                 setAudio(paradaAudio);
                 audioRef.current = paradaAudio;
@@ -89,18 +96,20 @@ function App() {
                 paradaTipoAudio.volume = volume;
 
                 paradaTipoAudio.onended = () => {
-                    let paradaAudioFile = `/audio/${lineaSeleccionada.split(" ")[1]}-${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`;
+                    let paradaAudioFile = `/audio/${lineaSinEspacios}-${paradaSeleccionada.toLowerCase().replace(/ /g, "_")}.wav`;
                     const paradaAudio = playAudio(paradaAudioFile);
                     setAudio(paradaAudio);
                     audioRef.current = paradaAudio;
                     paradaAudio.volume = volume;
                 };
             }
+            setPlaying(true);
         } else {
             console.log("Por favor, selecciona una línea y una parada.");
             alert("Para reproducir el audio, selecciona una línea y una parada.");
         }
     };
+
 
     const reproducirColision = () => {
         const audioColision = new Audio('/audio/colision.wav');
@@ -116,7 +125,8 @@ function App() {
 
             for (const linea in datos) {
                 datos[linea].forEach(parada => {
-                    const audio = new Audio(`/audio/${parada.toLowerCase().replace(/ /g, "_")}.wav`);
+                    const lineaSinEspacios = linea.split(" ")[1] || linea.split(" ")[0];
+                    const audio = new Audio(`/audio/${lineaSinEspacios}-${parada.toLowerCase().replace(/ /g, "_")}.wav`);
                 });
             }
 
@@ -137,85 +147,96 @@ function App() {
         setTheme(theme === 'light' ? 'dark' : 'light');
     };
 
+    const reproducirCanceladora = (audioNombre) => {
+        const audioCanceladora = new Audio(`/audio/${audioNombre}.mp3`);
+        audioCanceladora.play().catch(error => {
+            console.error("Error al reproducir audio:", error);
+        });
+    };
+
     return (
-        <div className="container">
-            <h1>Aplicación de Megafonía</h1>
+        <div className="container mt-4">
+            <h1 className="mb-4">Aplicación de Megafonía</h1>
 
-            <div>
-                <label htmlFor="linea">Línea:</label>
-                <select id="linea" value={lineaSeleccionada} onChange={handleLineaChange} className="form-select">
-                    <option value="">Selecciona una línea</option>
-                    {Object.keys(datos).map((linea) => (
-                        <option key={linea} value={linea}>{linea}</option>
-                    ))}
-                </select>
+            <div className="card mb-4">
+                <div className="card-body">
+                    <div className="mb-3">
+                        <label htmlFor="linea" className="form-label">Línea:</label>
+                        <select id="linea" value={lineaSeleccionada} onChange={handleLineaChange} className="form-select">
+                            <option value="">Selecciona una línea</option>
+                            {Object.keys(datos).map((linea) => (
+                                <option key={linea} value={linea}>{linea}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="parada" className="form-label">Parada:</label>
+                        <select id="parada" value={paradaSeleccionada} onChange={handleParadaChange} className="form-select">
+                            <option value="">Selecciona una parada</option>
+                            {datos[lineaSeleccionada]?.map((parada) => (
+                                <option key={parada} value={parada}>{parada}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label htmlFor="parada">Parada:</label>
-                <select id="parada" value={paradaSeleccionada} onChange={handleParadaChange} className="form-select">
-                    <option value="">Selecciona una parada</option>
-                    {datos[lineaSeleccionada]?.map((parada) => (
-                        <option key={parada} value={parada}>{parada}</option>
-                    ))}
-                </select>
+            <div className="card mb-4">
+                <div className="card-body">hora_de_salida.wav
+                    <div className="mb-3">
+                        <div className="d-flex flex-column">
+                            <label className="form-check-label">
+                                <input type="radio" value="actual" checked={tipoParada === 'actual'} onChange={handleTipoParadaChange} className="form-check-input me-2" />
+                                Parada actual
+                            </label>
+                            <label className="form-check-label">
+                                <input type="radio" value="siguiente" checked={tipoParada === 'siguiente'} onChange={handleTipoParadaChange} className="form-check-input me-2" />
+                                Parada siguiente
+                            </label>
+                            <label className="form-check-label">
+                                <input type="radio" value="noUsar" checked={tipoParada === 'noUsar'} onChange={handleTipoParadaChange} className="form-check-input me-2" />
+                                No usar
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="volume" className="form-label">Volumen:</label>
+                        <input type="range" id="volume" min="0" max="1" step="0.1" value={volume} onChange={handleVolumeChange} className="form-range" />
+                    </div>
+                </div>
             </div>
 
-            <div className="d-flex flex-column">
-                <label>
-                    <input
-                        type="radio"
-                        value="actual"
-                        checked={tipoParada === 'actual'}
-                        onChange={handleTipoParadaChange}
-                        className="form-check-input"
-                    />
-                    <span className="form-check-label">Parada actual</span>
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        value="siguiente"
-                        checked={tipoParada === 'siguiente'}
-                        onChange={handleTipoParadaChange}
-                        className="form-check-input"
-                    />
-                    <span className="form-check-label">Parada siguiente</span>
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        value="noUsar"
-                        checked={tipoParada === 'noUsar'}
-                        onChange={handleTipoParadaChange}
-                        className="form-check-input"
-                    />
-                    <span className="form-check-label">No usar</span>
-                </label>
+            <div className="d-grid gap-2">
+                <button onClick={reproducirAudio} className="btn btn-primary" disabled={!lineaSeleccionada || !paradaSeleccionada}>
+                    {playing ? "Detener" : "Reproducir"}
+                </button>
+                <button onClick={toggleTheme} className="btn btn-secondary">
+                    Cambiar tema a {theme === 'light' ? 'oscuro' : 'claro'}
+                </button>
+                <button onClick={reproducirColision} className="btn btn-danger">Anti-Colisión</button>
             </div>
 
-            <div>
-                <label htmlFor="volume">Volumen:</label>
-                <input
-                    type="range"
-                    id="volume"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="form-range"
-                />
+
+            <div className="card mb-4">
+                <div className="card-body">
+                    <h5 className="card-title">Canceladora</h5>
+                    <div className="d-grid gap-2">
+                        <button onClick={() => reproducirCanceladora('hora_de_salida')} className="btn btn-primary">
+                            Hora de Salida
+                        </button>
+                        <button onClick={() => reproducirCanceladora('atencion_a_su_saldo')} className="btn btn-primary">
+                            Atención a su Saldo
+                        </button>
+                        <button onClick={() => reproducirCanceladora('saldo_insuficiente')} className="btn btn-primary">
+                            Saldo Insuficiente
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <button onClick={reproducirAudio} className="btn btn-primary">Reproducir</button>
-            <button onClick={toggleTheme} className="btn btn-secondary mt-3">
-                Cambiar tema a {theme === 'light' ? 'oscuro' : 'claro'}
-            </button>
 
-            <button onClick={reproducirColision} className="btn btn-danger mt-3 fixed-bottom">
-                Anti-Colisión
-            </button>
         </div>
     );
 }
